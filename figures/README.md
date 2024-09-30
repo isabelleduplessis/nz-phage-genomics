@@ -5,7 +5,7 @@ This script requires the following packages:\
         reshape2 1.4.4\
         vegan 2.5-6\
         grid 4.0.2\
-        gridExtra 2.3\
+        gridExtra 2.3
 
 abundance.R:\
 Contains R script used to produce viral and prokaryotic abundance plots and vOTU count and rank order plots. Requires intermediate files votus_cov75thres.txt, metadata.csv, and qPCR_data.csv.\
@@ -15,7 +15,7 @@ This script requires the following packages:\
         readr 2.1.4\
         grid 4.0.2\
         gridExtra 2.3\
-        ggpubr 0.6.0\
+        ggpubr 0.6.0
 
 host_plot.R:\
 Contains R script used to produce host phyla plot and biogeochemical properties. Requires intermediate files votus_cov75thres.txt, metadata.csv, HostPrediction.tsv, and hostproperties.tsv.\
