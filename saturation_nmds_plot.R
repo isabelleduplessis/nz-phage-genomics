@@ -1,3 +1,5 @@
+# Code by: Isabelle Du Plessis, 2023 and Marian Dominguez-Mirazo, 2023
+
 require(ggplot2) # version 3.4.2
 require(reshape2) # version 1.4.4
 require(vegan) # version 2.5-6
@@ -18,7 +20,7 @@ metadata$Sample_ID = paste("sample_",metadata$Sample_ID,sep="")
 metadata = metadata[order(metadata$Sample_ID),]
 
 # Load vOTU data
-votus_cov75thres <- read.delim(paste0(path,"/intermediate_files/votus_cov75thres.txt"), header=FALSE, comment.char="#")
+votus_cov75thres = read.delim(paste0(path,"/intermediate_files/votus_cov75thres.txt"), header=FALSE, comment.char="#")
 colnames(votus_cov75thres) = c("sample","votus","coverage","meandepth","rpkm")
 
 ##############################################
@@ -63,21 +65,21 @@ votu = votus_cov75thres$votus
 rpkm = votus_cov75thres$rpkm
 newdf2 = data.frame(sample,votu,rpkm)
 
-votu <- unique(newdf2$votu)
-samples <- sort(unique(newdf2$sample)) 
-df1 <- matrix(nrow = length(samples), ncol = length(votu), dimnames = list(samples,votu))
+votu = unique(newdf2$votu)
+samples = sort(unique(newdf2$sample)) 
+df1 = matrix(nrow = length(samples), ncol = length(votu), dimnames = list(samples,votu))
 
 
 for(r in 1:nrow(newdf2)){
-  samp <- newdf2[r, 1]
-  tax <- newdf2[r, 2]
-  df1[samp,tax] <- newdf2[r, 3]
+  samp = newdf2[r, 1]
+  tax = newdf2[r, 2]
+  df1[samp,tax] = newdf2[r, 3]
 } # 1, 2, 3 here relate the the column number in the raw data in which the sample name, species name and data are in
 
-df1[is.na(df1)] <- 0   #convert NA's to 0
-#df2 <- as.data.frame(df1)
+df1[is.na(df1)] = 0   #convert NA's to 0
+#df2 = as.data.frame(df1)
 
-nmds <- metaMDS(df1, distance = "bray", autotransform = FALSE)
+nmds = metaMDS(df1, distance = "bray", autotransform = FALSE)
 #nmds #below 0.2 is generally good 
 #plot(nmds) #circles are samples, starts are votus
 
