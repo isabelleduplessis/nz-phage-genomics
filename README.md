@@ -1,6 +1,6 @@
 # Introduction
 
-These are the commands used to characterize viral sequences from marine samples near New Zealand. The goal of this project is to understand how different temperatures, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project. Future work includes ____.
+These are the commands used to characterize viral sequences from marine samples near New Zealand. The goal of this project is to understand how different temperatures, salinity, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project. Future work includes ____.
 
 # Methods
 
