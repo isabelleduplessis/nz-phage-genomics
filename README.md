@@ -1,6 +1,6 @@
 # Introduction
 
-These are the commands used to characterize viral sequences from marine samples near New Zealand. The goal of this project is to understand how different temperatures, salinity, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project. Future work includes ____.
+These are the commands used to characterize viral sequences from marine samples near New Zealand. The goal of this project is to understand how different temperatures, salinity, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project. 
 
 # Methods
 
@@ -10,6 +10,8 @@ need to update
 ## Quality Checking Viral Sequences
 
 Started with 58643 viral sequences predicted with VirSorter: all_virsorter_contigs_Daniel.fa
+
+Samples come from https://www.nature.com/articles/s41467-022-35204-6#Sec10
 
 ### Filter Sequence Lengths - 5KB
 
