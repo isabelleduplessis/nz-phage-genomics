@@ -1,11 +1,27 @@
-# Introduction
+# New Zealand Marine Phage Genomics
 
-These are the commands used to characterize viral sequences from marine samples near New Zealand. The goal of this project is to understand how different temperatures, salinity, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project. 
+
+These are the commands used to characterize viral sequences from marine samples in the Chatham Rise near the coast of New Zealand. The goal of this project is to understand how different temperatures, salinity, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project worked on during my time as a Graduate Research Assistant with the Weitz Group. 
+
 
 # Methods
 
 ## Packages Used:
-need to update
+
+seqkit v2.4.0
+
+CD-HIT v4.8.1
+
+CheckV v1.0.1
+
+BWA v0.7.17
+
+samtools/1.14-3alo66
+
+bedtools2/2.30.0-mlxpvg
+
+Virsorter2
+
 
 ## Quality Checking Viral Sequences
 
@@ -72,9 +88,6 @@ Bam files were generated for the reads that mapped.
 Next, those bam files were used to create paired fastq files for
 reassembly.
 
-    cd /storage/coda1/p-jweitz3/0/shared/PhageGenomicsHI/iplessis3/nz/increasingseqs/sam/mappedbam
-    module load bedtools2/2.30.0-mlxpvg
-    module load samtools/1.14-3alo66
     for i in {1..22}; do 
         samtools sort -n -o NZ$i\sorted NZ$i\_mapped.bam
         bedtools bamtofastq -i NZ$i\sorted -fq NZ$i\_R1 -fq2 NZ$i\_R2
@@ -84,18 +97,12 @@ reassembly.
 
 The fq files were reassembled with megahit.
 
-    cd /storage/coda1/p-jweitz3/0/shared/PhageGenomicsHI/iplessis3/nz/increasingseqs/sam/mappedbam/fq
-    module load anaconda3
-    conda activate megahit
     megahit -1 NZ${samplenumber}_R1.fq -2 NZ${samplenumber}_R2.fq -o megahit_${samplenumber} -t 4
 
 ### VirSorter
 
 Run virsorter on each of the 22 outputs.
 
-    cd /storage/coda1/p-jweitz3/0/shared/PhageGenomicsHI/iplessis3/nz/increasingseqs/sam/mappedbam/fq
-    module load anaconda3
-    conda activate vs2
     virsorter run -w viral/NZ${samplenumber}_viral.fa -i megahit_${samplenumber}/final.contigs.fa --min-length 1500 -j 4 all
 
 Add sample number to headers and concatenate viral sequences:
@@ -112,16 +119,13 @@ This resulted in 21587 sequences.
 
 ### CDHIT
 
-    cd /storage/coda1/p-jweitz3/0/shared/PhageGenomicsHI/iplessis3/nz/increasingseqs/sam/mappedbam/fq/viral
-    module load cdhit/4.8.1-n4smhr
     cd-hit-est -i viralseqs5000.fa -o increasedviralseqs.fa -c 0.95 -s 0.8
 
 This resulted in 14092 sequences
 
 ### CheckV
 
-    conda activate checkv
-    export CHECKVDB=/Users/isabelleduplessis/phage/NZ/checkv-db-v1.5
+    export CHECKVDB=checkv-db-v1.5
     checkv end_to_end increasedviralseqs.fa checknewseqs -t 2
 
     awk '(NR>1) {print $1}' checknewseqs/quality_summary_filtered.tsv > increasedseqids.txt
@@ -152,7 +156,6 @@ Get sequence lengths:
 
 The nztotalseqs.fna file was indexed using BWA:
 
-    module load bwa/0.7.17-r23kej
     bwa index -p nztotalseqs nztotalseqs.fna
 
 Then, the raw reads were mapped to this index:
@@ -187,5 +190,6 @@ After running coverage.sbatch:
     echo -e "sample_${i}\t$totreads"; done > totalreads_mapped.csv 
 
 # Visualizing Results
-add information for running R plot
+
+Information for running R plot
 
