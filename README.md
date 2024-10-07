@@ -1,14 +1,13 @@
-# New Zealand Marine Phage Genomics
+# Introduction
 
-
-These are the commands used to characterize viral sequences from marine samples in the Chatham Rise near the coast of New Zealand. The goal of this project is to understand how different temperatures, salinity, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project worked on during my time as a Graduate Research Assistant with the Weitz Group. 
+These are the commands used to characterize viral sequences from marine samples in the Chatham Rise near the coast of New Zealand. The goal of this project is to understand how different temperatures, salinity levels, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project worked on during my time as a Graduate Research Assistant with the Weitz Group. 
 
 
 # Methods
 
 ## Packages Used:
 
-seqkit v2.4.0
+Seqkit v2.4.0
 
 CD-HIT v4.8.1
 
@@ -16,24 +15,28 @@ CheckV v1.0.1
 
 BWA v0.7.17
 
-samtools/1.14-3alo66
+Samtools v1.14
 
-bedtools2/2.30.0-mlxpvg
+Bedtools2 v2.30.0
 
-Virsorter2
+Virsorter2 v2.2.4
 
+
+## Sample Collection
+
+Samples were collected as part of the SalpPOOP study ([Décima 2023](https://doi.org/10.1038/s41467-022-35204-6)) and enriched for viromes. After sequencing, the data was filtered to only contain contigs classified as viral with VirSorter2. 
+
+The following workflow was used to analyze the viral contigs:
 
 ## Quality Checking Viral Sequences
 
-Started with 58643 viral sequences predicted with VirSorter: all_virsorter_contigs_Daniel.fa
-
-Samples come from https://www.nature.com/articles/s41467-022-35204-6#Sec10
+Started with 58643 viral sequences predicted with VirSorter: all_virsorter_contigs.fa
 
 ### Filter Sequence Lengths - 5KB
 
 Filtered to sequences above length 5000 using seqkit v2.4.0 with conda:
 
-    seqkit seq -m 5000 -g all_virsorter_contigs_Daniel.fa > nzvirsorterseqs5000.fna
+    seqkit seq -m 5000 -g all_virsorter_contigs.fa > nzvirsorterseqs5000.fna
 
 This resulted in 10494 sequences.
 
@@ -47,8 +50,7 @@ This resulted in 8229 sequences.
 
 ### CheckV to keep quality viral sequences
 
-Next, CheckV v1.0.1 was run on local computer with the following
-commands:
+Next, CheckV v1.0.1 was run on local computer with the following commands:
 
     conda activate checkv
     export CHECKVDB=checkv-db-v1.5
@@ -59,22 +61,21 @@ Get non \"Not-determined\" sequences:
     grep -v "Not-determined" checkvresults/quality_summary.tsv > quality_summary_filtered.tsv
     grep -A 1 -f <(awk '(NR>1) {print $1}' checkv/quality_summary_filtered.tsv) nzvirsorterseqscdhit.fna | sed '/^-/d' > nzseqs7890.fna
 
-
-This resulted in 7890 viral sequences, which can be found at:
-
-    nzseqs7890.fna
+This resulted in 7890 viral sequences: nzseqs7890.fna
 
 ## Increasing Viral Sequences
+
+Mapping quality checked viral predictions to raw reads to maximize viral sequence recovery. This method is based on viral reassembly methods in [Luo 2023](https://doi.org/10.1038/s41396-020-0604-8).
 
 ### Read Mapping
 
 First, the original viral sequences were indexed with BWA.
 
-    bwa index -p all_virsorter_contigs_Daniel all_virsorter_contigs_Daniel.fa
+    bwa index -p all_virsorter_contigs all_virsorter_contigs.fa
 
 Then, the raw reads were mapped to the 7890 sequences.
 
-    bwa mem -t 4 all_virsorter_contigs_Daniel R1_${samplenumber}.fastq R2_${samplenumber}.fastq > sam/NZ${samplenumber}.sam 
+    bwa mem -t 4 all_virsorter_contigs R1_${samplenumber}.fastq R2_${samplenumber}.fastq > sam/NZ${samplenumber}.sam 
 
 Sam files were converted to sorted bam files.
 
@@ -85,8 +86,7 @@ Bam files were generated for the reads that mapped.
 
     for ARG in {1..22}; do samtools view -b -F 4 NZ${ARG}_sorted.bam > NZ${ARG}_mapped.bam; done
 
-Next, those bam files were used to create paired fastq files for
-reassembly.
+Next, those bam files were used to create paired fastq files for reassembly.
 
     for i in {1..22}; do 
         samtools sort -n -o NZ$i\sorted NZ$i\_mapped.bam
@@ -150,7 +150,7 @@ Get sequence lengths:
     END{if(val!=""){print val}}' | \
     awk '{print $2}'
 
-## Abundance and Diversity
+## Abundance and Diversity Analysis
 
 ### Read Mapping
 
@@ -189,7 +189,5 @@ After running coverage.sbatch:
     for i in {1..22}; do totreads=$(samtools view -c sample_${i}_mapped.bam); \
     echo -e "sample_${i}\t$totreads"; done > totalreads_mapped.csv 
 
-# Visualizing Results
-
-Information for running R plot
+These output files can be found in the 'data' folder and are used to produce figures in nz_graphs.R.
 
