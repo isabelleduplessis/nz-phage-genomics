@@ -1,7 +1,6 @@
 # Introduction
 
-These are the commands used to characterize viral sequences from marine samples in the Chatham Rise near the coast of New Zealand. The goal of this project is to understand how different temperatures, salinity levels, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project worked on during my time as a Graduate Research Assistant with the Weitz Group. 
-
+These are the commands used to characterize viral sequences from marine samples in the Chatham Rise near the coast of New Zealand. The goal of this project is to understand how different temperatures, salinity levels, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project worked on during my time as a Graduate Research Assistant with the Weitz Group, with mentorship from Marian Dominguez-Mirazo.
 
 # Methods
 
@@ -24,7 +23,7 @@ Virsorter2 v2.2.4
 
 ## Sample Collection
 
-Samples were collected as part of the SalpPOOP study ([Décima 2023](https://doi.org/10.1038/s41467-022-35204-6)) and enriched for viromes. After sequencing, the data was filtered to only contain contigs classified as viral with VirSorter2. 
+22 samples were collected as part of the SalpPOOP study ([Décima 2023](https://doi.org/10.1038/s41467-022-35204-6)) and enriched for viromes. After sequencing, the data was filtered to only contain contigs classified as viral with VirSorter2. 
 
 The following workflow was used to analyze the viral contigs:
 
@@ -141,15 +140,6 @@ clustering, there were 21476 sequences.
 
 This resulted in 18490 sequences.
 
-Get sequence lengths:
-
-    awk '/^>/ { print (NR==1 ? "" : RS) $0; next } \
-    { printf "%s", $0 } END { printf RS }' nztotalseqs.fna | \
-    awk '/^>/{sub(/^>/,"");val=$0;next} \ 
-    {print val,length($0);val=""} \
-    END{if(val!=""){print val}}' | \
-    awk '{print $2}'
-
 ## Abundance and Diversity Analysis
 
 ### Read Mapping
@@ -165,29 +155,44 @@ Then, the raw reads were mapped to this index:
 
 ### Coverage
 
+Use samtools to get depth and coverage information for each sample:
+
     samtools view -bS sample_${samplenumber}.sam > sample_${samplenumber}.bam
     samtools sort sample_${samplenumber}.bam > sample_${samplenumber}_sorted.bam
     samtools depth sample_${samplenumber}_sorted.bam > sample_${samplenumber}_depth.txt
     samtools coverage sample_${samplenumber}_sorted.bam > sample_${samplenumber}_coverage.txt
 
-After running coverage.sbatch:
 
-    for i in {1..22}; do totreads=$(samtools view -c sample_${i}_sorted.bam); \
-    echo "sample_${i},$totreads"; done > totalreads.csv
+Organize coverage, depth, and rpkm information for each sample
 
     for ARG in {1..22}; do totreads=$(grep "sample_$ARG," totalreads.csv | \
     cut -f2 -d ","); awk -F'\t' 'NR==1 || $6>=75' "sample_${ARG}_coverage.txt" | grep -v "^#" | \
     sed -e "s/^/sample_$ARG\t/" | \
     awk -v t=$totreads '{print $1"\t"$2"\t"$7"\t"$8"\t"($5*10**9)/($4*t)}'; \
     done > votus_cov75thres.txt;
-
     sed -i '1 i\#sample\tvotus\tcoverage\tmeandepth\trpkm' votus_cov75thres.txt
+
+Get total number of reads in each sample:
+
+    for i in {1..22}; do totreads=$(samtools view -c sample_${i}_sorted.bam); \
+    echo "sample_${i},$totreads"; done > totalreads.csv
+
+Get total number of reads mapped to something viral in each sample:
 
     for ARG in {1..22}; do samtools view -b -F 4 sample_${ARG}_sorted.bam \
     > sample_${ARG}_mapped.bam; done
 
     for i in {1..22}; do totreads=$(samtools view -c sample_${i}_mapped.bam); \
     echo -e "sample_${i}\t$totreads"; done > totalreads_mapped.csv 
+
+Get sequence lengths:
+
+    awk '/^>/ { print (NR==1 ? "" : RS) $0; next } \
+    { printf "%s", $0 } END { printf RS }' nztotalseqs.fna | \
+    awk '/^>/{sub(/^>/,"");val=$0;next} \ 
+    {print val,length($0);val=""} \
+    END{if(val!=""){print val}}' | \
+    awk '{print $2}' > nzseqlens.txt
 
 These output files can be found in the 'data' folder and are used to produce figures in nz_graphs.R.
 
