@@ -2,6 +2,8 @@
 
 These are the commands used to characterize viral sequences from marine samples in the Chatham Rise near the coast of New Zealand. The goal of this project is to understand how different temperatures, salinity levels, nutrient levels, and water depths impact viral genomes. This is part of the initial stages of a research project worked on during my time as a Graduate Research Assistant with the Weitz Group, with mentorship from Marian Dominguez-Mirazo.
 
+'data' contains the output files from the following methods, used in 'nz_graphs.R' to produce visualizations of results.
+
 # Methods
 
 ## Packages Used:
@@ -110,7 +112,7 @@ Add sample number to headers and concatenate viral sequences:
 
 This resulted in 112825 sequences.
 
-### 5KB
+### Filter Sequence Lengths - 5KB
 
     seqkit seq -m 5000 -g viralseqs.fa > viralseqs5000.fa
 
@@ -134,7 +136,7 @@ This resulted in 14092 sequences
 This resulted in 13586 sequences. After combining the files and before
 clustering, there were 21476 sequences.
 
-### CDHIT
+### CDHIT clustering to get unique viral populations
 
     cd-hit-est -i nzcombinedseqs.fna -o nztotalseqs.fna -c 0.95 -s 0.8
 
